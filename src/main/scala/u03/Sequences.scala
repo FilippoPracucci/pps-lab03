@@ -11,73 +11,77 @@ object Sequences: // Essentially, generic linkedlists
 
   object Sequence:
 
-    def sum(l: Sequence[Int]): Int = l match
-      case Cons(h, t) => h + sum(t)
-      case _ => 0
+    extension (l: Sequence[Int])
+      def sum: Int = l match
+        case Cons(h, t) => h + t.sum
+        case _ => 0
+      
+    extension [A](s: Sequence[A])
 
-    def map[A, B](l: Sequence[A])(mapper: A => B): Sequence[B] = l match
-      case Cons(h, t) => Cons(mapper(h), map(t)(mapper))
-      case Nil() => Nil()
-
-    def filter[A](l1: Sequence[A])(pred: A => Boolean): Sequence[A] = l1 match
-      case Cons(h, t) if pred(h) => Cons(h, filter(t)(pred))
-      case Cons(_, t) => filter(t)(pred)
-      case Nil() => Nil()
+      def map[B](mapper: A => B): Sequence[B] = s match
+        case Cons(h, t) => Cons(mapper(h), t.map(mapper))
+        case Nil() => Nil()
+  
+      def filter(pred: A => Boolean): Sequence[A] = s match
+        case Cons(h, t) if pred(h) => Cons(h, t.filter(pred))
+        case Cons(_, t) => t.filter(pred)
+        case Nil() => Nil()
 
     // Lab 03
 
-    /*
-     * Skip the first n elements of the sequence
-     * E.g., [10, 20, 30], 2 => [30]
-     * E.g., [10, 20, 30], 3 => []
-     * E.g., [10, 20, 30], 0 => [10, 20, 30]
-     * E.g., [], 2 => []
-     */
-    def skip[A](s: Sequence[A])(n: Int): Sequence[A] = s match
-      case Cons(_, t) if n > 0 => skip(t)(n - 1)
-      case _ => s
+      /*
+       * Skip the first n elements of the sequence
+       * E.g., [10, 20, 30], 2 => [30]
+       * E.g., [10, 20, 30], 3 => []
+       * E.g., [10, 20, 30], 0 => [10, 20, 30]
+       * E.g., [], 2 => []
+       */
+      def skip(n: Int): Sequence[A] = s match
+        case Cons(_, t) if n > 0 => t.skip(n - 1)
+        case _ => s
+      
+      /*
+       * Zip two sequences
+       * E.g., [10, 20, 30], [40, 50] => [(10, 40), (20, 50)]
+       * E.g., [10], [] => []
+       * E.g., [], [] => []
+       */
+      def zip[B](second: Sequence[B]): Sequence[(A, B)] = (s, second) match
+        case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1, h2), t1.zip(t2))
+        case _ => Nil()
+  
+      /*
+       * Concatenate two sequences
+       * E.g., [10, 20, 30], [40, 50] => [10, 20, 30, 40, 50]
+       * E.g., [10], [] => [10]
+       * E.g., [], [] => []
+       */
+      def concat(second: Sequence[A]): Sequence[A] = (s, second) match
+        case (Cons(h, t), _) => Cons(h, t.concat(second))
+        case _ => second
 
-    /*
-     * Zip two sequences
-     * E.g., [10, 20, 30], [40, 50] => [(10, 40), (20, 50)]
-     * E.g., [10], [] => []
-     * E.g., [], [] => []
-     */
-    def zip[A, B](first: Sequence[A], second: Sequence[B]): Sequence[(A, B)] = (first, second) match
-      case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1, h2), zip(t1, t2))
-      case _ => Nil()
-
-    /*
-     * Concatenate two sequences
-     * E.g., [10, 20, 30], [40, 50] => [10, 20, 30, 40, 50]
-     * E.g., [10], [] => [10]
-     * E.g., [], [] => []
-     */
-    def concat[A](s1: Sequence[A], s2: Sequence[A]): Sequence[A] = (s1, s2) match
-      case (Cons(h, t), _) => Cons(h, concat(t, s2))
-      case _ => s2
-
-    /*
-     * Reverse the sequence
-     * E.g., [10, 20, 30] => [30, 20, 10]
-     * E.g., [10] => [10]
-     * E.g., [] => []
-     */
-    def reverse[A](s: Sequence[A]): Sequence[A] =
-      def _rev[A](s: Sequence[A], r: Sequence[A]): Sequence[A] = s match
-        case Cons(h, t) => _rev(t, Cons(h, r))
-        case _ => r
-      _rev(s, Nil())
-
-    /*
-     * Map the elements of the sequence to a new sequence and flatten the result
-     * E.g., [10, 20, 30], calling with mapper(v => [v, v + 1]) returns [10, 11, 20, 21, 30, 31]
-     * E.g., [10, 20, 30], calling with mapper(v => [v]) returns [10, 20, 30]
-     * E.g., [10, 20, 30], calling with mapper(v => Nil()) returns []
-     */
-    def flatMap[A, B](s: Sequence[A])(mapper: A => Sequence[B]): Sequence[B] = s match
-      case Cons(h, t) => concat(mapper(h), flatMap(t)(mapper))
-      case _ => Nil()
+      /*
+       * Reverse the sequence
+       * E.g., [10, 20, 30] => [30, 20, 10]
+       * E.g., [10] => [10]
+       * E.g., [] => []
+       */
+      def reverse: Sequence[A] =
+        @annotation.tailrec
+        def _rev[A](s: Sequence[A], r: Sequence[A]): Sequence[A] = s match
+          case Cons(h, t) => _rev(t, Cons(h, r))
+          case _ => r
+        _rev(s, Nil())
+  
+      /*
+       * Map the elements of the sequence to a new sequence and flatten the result
+       * E.g., [10, 20, 30], calling with mapper(v => [v, v + 1]) returns [10, 11, 20, 21, 30, 31]
+       * E.g., [10, 20, 30], calling with mapper(v => [v]) returns [10, 20, 30]
+       * E.g., [10, 20, 30], calling with mapper(v => Nil()) returns []
+       */
+      def flatMap[B](mapper: A => Sequence[B]): Sequence[B] = s match
+        case Cons(h, t) =>  mapper(h).concat(t.flatMap(mapper))
+        case _ => Nil()
 
     /*
      * Get the minimum element in the sequence
