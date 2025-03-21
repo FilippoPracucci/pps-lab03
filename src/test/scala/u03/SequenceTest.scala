@@ -1,13 +1,12 @@
 package u03
 
 import Optionals.Optional.*
-import extensionmethods.Sequences.*
+import Sequences.*
+import Sequence.*
 import org.junit.*
 import org.junit.Assert.*
 
 class SequenceTest:
-  import u03.Sequences.*
-  import Sequence.*
 
   val sequence: Sequence[Int] = Cons(10, Cons(20, Cons(30, Nil())))
 
