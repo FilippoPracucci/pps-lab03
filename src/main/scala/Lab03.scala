@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 object Lab03:
 
   object Sequences: // Essentially, generic linkedlists
@@ -11,8 +13,8 @@ object Lab03:
 
     object Sequence:
 
-      extension (l: Sequence[Int])
-        def sum: Int = l match
+      extension (s: Sequence[Int])
+        def sum: Int = s match
           case Cons(h, t) => h + t.sum
           case _ => 0
 
@@ -82,6 +84,19 @@ object Lab03:
         def flatMap[B](mapper: A => Sequence[B]): Sequence[B] = s match
           case Cons(h, t) =>  mapper(h).concat(t.flatMap(mapper))
           case _ => Nil()
+
+      /*
+       * Get the minimum element in the sequence
+       * E.g., [30, 20, 10] => 10
+       * E.g., [10, 1, 30] => 1
+       */
+      def min(s: Sequence[Int]): Optional[Int] =
+        @tailrec
+        def _min(s: Sequence[Int])(min: Optional[Int]): Optional[Int] = s match
+          case Cons(h, t) if isEmpty(min) || orElse(Optional.map(min)(_ >= h), false) => _min(t)(Just(h))
+          case Cons(h, t) => _min(t)(min)
+          case _ => min
+        _min(s)(Empty())
 
     end Sequence
   end Sequences

@@ -5,6 +5,9 @@ import org.junit.Assert.*
 
 class SequenceTest:
 
+  import u03.Optionals.*
+  import Optional.*
+
   val sequence: Sequence[Int] = Cons(10, Cons(20, Cons(30, Nil())))
 
   @Test def testSum() =
@@ -46,6 +49,11 @@ class SequenceTest:
   @Test def testFlatMap() =
     assertEquals(Cons(11, Cons(21, Cons(31, Nil()))), sequence.flatMap(v => Cons(v + 1, Nil())))
     assertEquals(Nil(), Nil().flatMap(v => Cons(v, Nil())))
+
+  @Test def testMin() =
+    assertEquals(Just(10), min(sequence))
+    assertEquals(Just(1), min(Cons(1, Nil())))
+    assertEquals(Empty(), min(Nil()))
 
 end SequenceTest
 
