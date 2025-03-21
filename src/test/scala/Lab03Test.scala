@@ -51,9 +51,23 @@ class SequenceTest:
     assertEquals(Nil(), Nil().flatMap(v => Cons(v, Nil())))
 
   @Test def testMin() =
-    assertEquals(Just(10), min(sequence))
+    assertEquals(Just(10), sequence.min)
     assertEquals(Just(1), min(Cons(1, Nil())))
     assertEquals(Empty(), min(Nil()))
+
+  @Test def testEvenIndices() =
+    assertEquals(Cons(10, Cons(30, Nil())), sequence.evenIndices)
+    assertEquals(Nil(), evenIndices(Nil()))
+
+  @Test def testContains() =
+    assertEquals(true, sequence.contains(10))
+    assertEquals(false, sequence.contains(15))
+    assertEquals(false, contains(Nil())(10))
+
+  @Test def testDistinct() =
+    assertEquals(Cons(10, Cons(20, Cons(30, Nil()))), sequence.distinct)
+    assertEquals(Cons(10, Cons(20, Nil())), distinct(Cons(10, Cons(20, Cons(10, Nil())))))
+    assertEquals(Nil(), distinct(Nil()))
 
 end SequenceTest
 

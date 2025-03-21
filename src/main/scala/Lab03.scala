@@ -2,7 +2,9 @@ import scala.annotation.tailrec
 
 object Lab03:
 
-  object Sequences: // Essentially, generic linkedlists
+  // Task 1, svolto da solo
+
+  object Sequences:
 
     import u03.Optionals.*
     import Optional.*
@@ -18,6 +20,19 @@ object Lab03:
           case Cons(h, t) => h + t.sum
           case _ => 0
 
+        /*
+         * Get the minimum element in the sequence
+         * E.g., [30, 20, 10] => 10
+         * E.g., [10, 1, 30] => 1
+         */
+        def min: Optional[Int] =
+          @tailrec
+          def _min(s: Sequence[Int])(min: Optional[Int]): Optional[Int] = s match
+            case Cons(h, t) if isEmpty(min) || orElse(Optional.map(min)(_ >= h), false) => _min(t)(Just(h))
+            case Cons(h, t) => _min(t)(min)
+            case _ => min
+          _min(s)(Empty())
+
       extension [A](s: Sequence[A])
 
         def map[B](mapper: A => B): Sequence[B] = s match
@@ -28,8 +43,6 @@ object Lab03:
           case Cons(h, t) if pred(h) => Cons(h, t.filter(pred))
           case Cons(_, t) => t.filter(pred)
           case Nil() => Nil()
-
-        // Task 1, svolto da solo
 
         /*
          * Skip the first n elements of the sequence
@@ -85,18 +98,40 @@ object Lab03:
           case Cons(h, t) =>  mapper(h).concat(t.flatMap(mapper))
           case _ => Nil()
 
-      /*
-       * Get the minimum element in the sequence
-       * E.g., [30, 20, 10] => 10
-       * E.g., [10, 1, 30] => 1
-       */
-      def min(s: Sequence[Int]): Optional[Int] =
-        @tailrec
-        def _min(s: Sequence[Int])(min: Optional[Int]): Optional[Int] = s match
-          case Cons(h, t) if isEmpty(min) || orElse(Optional.map(min)(_ >= h), false) => _min(t)(Just(h))
-          case Cons(h, t) => _min(t)(min)
-          case _ => min
-        _min(s)(Empty())
+        /*
+         * Get the elements at even indices
+         * E.g., [10, 20, 30] => [10, 30]
+         * E.g., [10, 20, 30, 40] => [10, 30]
+         */
+        def evenIndices: Sequence[A] =
+          def _evenInd[A](s: Sequence[A], index: Int): Sequence[A] = s match
+            case Cons(h, t) if index % 2 == 0 => Cons(h, _evenInd(t, index + 1))
+            case Cons(_, t) => _evenInd(t, index + 1)
+            case _ => Nil()
+          _evenInd(s, 0)
+
+        /*
+         * Check if the sequence contains the element
+         * E.g., [10, 20, 30] => true if elem is 20
+         * E.g., [10, 20, 30] => false if elem is 40
+         */
+        def contains(elem: A): Boolean = s match
+          case Cons(h, _) if h == elem => true
+          case Cons(_, t) => t.contains(elem)
+          case _ => false
+
+        /*
+         * Remove duplicates from the sequence
+         * E.g., [10, 20, 10, 30] => [10, 20, 30]
+         * E.g., [10, 20, 30] => [10, 20, 30]
+         */
+        def distinct: Sequence[A] =
+          @tailrec
+          def _dist(s: Sequence[A], singulars: Sequence[A]): Sequence[A] = s match
+            case Cons(h, t) if !singulars.contains(h) => _dist(t, Cons(h, singulars))
+            case Cons(h, t) => _dist(t, singulars)
+            case _ => singulars.reverse
+          _dist(s, Nil())
 
     end Sequence
   end Sequences
