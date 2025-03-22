@@ -69,6 +69,19 @@ class SequenceTest:
     assertEquals(Cons(10, Cons(20, Nil())), distinct(Cons(10, Cons(20, Cons(10, Nil())))))
     assertEquals(Nil(), distinct(Nil()))
 
+  @Test def testGroup() =
+    val sequence = Cons(10, Cons(10, Cons(20, Cons(30, Cons(20, Nil())))))
+    val grouped =
+      Cons(Cons(10, Cons(10, Nil())), Cons(Cons(20, Nil()), Cons(Cons(30, Nil()), Cons(Cons(20, Nil()), Nil()))))
+    assertEquals(grouped, sequence.group)
+    assertEquals(Nil(), group(Nil()))
+
+  @Test def testPartition() =
+    val sequence = Cons(11, Cons(20, Cons(31, Nil())))
+    val (even, odd) = sequence.partition(x => x % 2 == 0)
+    assertEquals(Cons(20, Nil()), even)
+    assertEquals(Cons(11, Cons(31, Nil())), odd)
+
 end SequenceTest
 
 // Task 2, svolto da solo

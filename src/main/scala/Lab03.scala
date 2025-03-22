@@ -133,6 +133,34 @@ object Lab03:
             case _ => singulars.reverse
           _dist(s, Nil())
 
+        /*
+         * Group contiguous elements in the sequence
+         * E.g., [10, 10, 20, 30] => [[10, 10], [20], [30]]
+         * E.g., [10, 20, 30] => [[10], [20], [30]]
+         * E.g., [10, 20, 20, 30] => [[10], [20, 20], [30]]
+         */
+        def group: Sequence[Sequence[A]] =
+          def _group(s: Sequence[A], actual: Sequence[A]): Sequence[Sequence[A]] = (s, actual) match
+            case (Cons(h, t), Nil()) => _group(t, Cons(h, actual))
+            case (Cons(h1, t1), Cons(h2, _)) if h1 == h2 => _group(t1, Cons(h2, actual))
+            case (Cons(h, t), Cons(_, _)) => Cons(actual, _group(t, Cons(h, Nil())))
+            case (Nil(), Nil()) => Nil()
+            case _ => Cons(actual, Nil())
+          _group(s, Nil())
+
+        /*
+         * Partition the sequence into two sequences based on the predicate
+         * E.g., [10, 20, 30] => ([10], [20, 30]) if pred is (_ < 20)
+         * E.g., [11, 20, 31] => ([20], [11, 31]) if pred is (_ % 2 == 0)
+         */
+        def partition(pred: A => Boolean): (Sequence[A], Sequence[A]) =
+          @tailrec
+          def _part(s: Sequence[A], pred: A => Boolean)(part1: Sequence[A], part2: Sequence[A]): (Sequence[A], Sequence[A]) = s match
+            case Cons(h, t) if pred(h) => _part(t, pred)(Cons(h, part1), part2)
+            case Cons(h, t) => _part(t, pred)(part1, Cons(h, part2))
+            case _ => (part1.reverse, part2.reverse)
+          _part(s, pred)(Nil(), Nil())
+
     end Sequence
   end Sequences
 
