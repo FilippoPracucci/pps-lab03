@@ -141,9 +141,8 @@ object Lab03:
          */
         def group: Sequence[Sequence[A]] =
           def _group(s: Sequence[A], actual: Sequence[A]): Sequence[Sequence[A]] = (s, actual) match
-            case (Cons(h, t), Nil()) => _group(t, Cons(h, actual))
-            case (Cons(h1, t1), Cons(h2, _)) if h1 == h2 => _group(t1, Cons(h2, actual))
-            case (Cons(h, t), Cons(_, _)) => Cons(actual, _group(t, Cons(h, Nil())))
+            case (Cons(h, t), Cons(_, _)) if !actual.contains(h) => Cons(actual, _group(t, Cons(h, Nil())))
+            case (Cons(h, t), _) => _group(t, Cons(h, actual))
             case (Nil(), Nil()) => Nil()
             case _ => Cons(actual, Nil())
           _group(s, Nil())
