@@ -5,8 +5,8 @@ object Streams extends App:
   import Sequences.*
 
   enum Stream[A]:
-    private case Empty()
-    private case Cons(head: () => A, tail: () => Stream[A])
+    case Empty()
+    case Cons(head: () => A, tail: () => Stream[A])
 
   object Stream:
 

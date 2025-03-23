@@ -1,3 +1,4 @@
+import Lab03.MyStreamsExtension
 import Lab03.Sequences.*
 import Sequence.*
 import org.junit.*
@@ -117,21 +118,28 @@ end PersonSequenceTest
 
 class MyStreamExtensionTest:
 
-  import u03.extensionmethods.Streams.*
+  import Sequence.*
+  import u03.Streams.*
   import Stream.*
   import Lab03.MyStreamsExtension.*
 
   @Test def testTakeWhile() =
     val stream = Stream.iterate(0)(_ + 1)
     val expectedResult = cons(0, cons(1, cons(2, cons(3, cons(4, empty())))))
-    assertEquals(toList(expectedResult), toList(takeWhile(stream)(_ < 5)))
+    assertEquals(toList(expectedResult), toList(MyStreamsExtension.takeWhile(stream)(_ < 5)))
 
   @Test def testFill() =
     val expectedResult = cons(5, cons(5, cons(5, empty())))
-    assertEquals(toList(expectedResult), Stream.toList(fill(3)(5)))
+    assertEquals(toList(expectedResult), toList(fill(3)(5)))
 
   @Test def testFibonacci() =
     val expectedResult = cons(0, cons(1, cons(1, cons(2, cons(3, empty())))))
-    assertEquals(toList(expectedResult), Stream.toList(Stream.take(fibonacci())(5)))
+    assertEquals(toList(expectedResult), toList(take(fibonacci())(5)))
+
+  @Test def testCycle() =
+    val sequence = Sequence.Cons("a", Sequence.Cons("b", Sequence.Cons("c", Nil())))
+    val expectedResult = cons("a", cons("b", cons("c", cons("a", cons("b", empty())))))
+    assertEquals(toList(expectedResult), toList(take(cycle(sequence))(5)))
+    assertEquals(toList(Empty()), toList(take(cycle(Nil()))(4)))
 
 end MyStreamExtensionTest

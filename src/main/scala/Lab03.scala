@@ -29,7 +29,7 @@ object Lab03:
           @tailrec
           def _min(s: Sequence[Int])(min: Optional[Int]): Optional[Int] = s match
             case Cons(h, t) if isEmpty(min) || orElse(Optional.map(min)(_ >= h), false) => _min(t)(Just(h))
-            case Cons(h, t) => _min(t)(min)
+            case Cons(_, t) => _min(t)(min)
             case _ => min
           _min(s)(Empty())
 
@@ -129,7 +129,7 @@ object Lab03:
           @tailrec
           def _dist(s: Sequence[A], singulars: Sequence[A]): Sequence[A] = s match
             case Cons(h, t) if !singulars.contains(h) => _dist(t, Cons(h, singulars))
-            case Cons(h, t) => _dist(t, singulars)
+            case Cons(_, t) => _dist(t, singulars)
             case _ => singulars.reverse
           _dist(s, Nil())
 
@@ -207,12 +207,14 @@ object Lab03:
 
   object MyStreamsExtension:
 
-    import u03.extensionmethods.Streams.*
+    import Sequences.*
+    import Sequence.*
+    import u03.Streams.*
     import Stream.*
 
-      def takeWhile[A](s: Stream[A])(pred: A => Boolean): Stream[A] = s match
-        case Cons(h, t) if pred(h()) => cons(h(), takeWhile(t())(pred))
-        case _ => empty()
+    def takeWhile[A](s: Stream[A])(pred: A => Boolean): Stream[A] = s match
+      case Stream.Cons(h, t) if pred(h()) => cons(h(), takeWhile(t())(pred))
+      case _ => empty()
 
     def fill[A](n: Int)(k: A): Stream[A] = n match
       case n if n > 0 => cons(k, fill(n - 1)(k))
@@ -222,6 +224,13 @@ object Lab03:
       def _fib(n1: Int, n2: Int): Stream[Int] =
         cons(n1, _fib(n2, n1 + n2))
       _fib(0, 1)
+
+    def cycle[A](s: Sequence[A]): Stream[A] =
+      def _cycle[A](toCycle: Sequence[A], original: Sequence[A]): Stream[A] = (toCycle, original) match
+        case (_, Nil()) => empty()
+        case (Sequence.Cons(h, t), _) => cons(h, _cycle(t, original))
+        case _ => _cycle(original, original)
+      _cycle(s, s)
 
   end MyStreamsExtension
 end Lab03
